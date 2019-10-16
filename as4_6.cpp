@@ -1,5 +1,5 @@
 #include<iostream>
-#include<strings.h>
+#include<string.h>
 
 #define __MAX_SIZE__ 20
 
@@ -14,6 +14,7 @@ private:
 	int roll;
 	char name[30];
 public:
+	student() {roll = -1; name[0] = '\0';}
 	student(int r, char* n)
 	{
 		roll = r;
@@ -27,7 +28,16 @@ public:
 	}
 
 	friend class student_list;
+	friend class relation;
+	friend ostream& operator<<(ostream& stream,const student& a);
 };
+
+ostream& operator<<(ostream& stream, const student& a)
+{
+	stream << "\t\tStudent Details\n" << "Name: " << a.name << "\n" << "Roll: " << a.roll << "\n";
+
+	return stream;
+}
 
 class subject
 {
@@ -35,6 +45,7 @@ public:
 	int code;
 	char name[30];
 public:
+	subject() {code = -1; name[0] = '\0';}
 	subject(int c, char* n)
 	{
 		code = c;
@@ -48,7 +59,16 @@ public:
 	}
 
 	friend class subject_list;
+	friend class relation;
+	friend ostream& operator<<(ostream& stream,const subject& a);
 };
+
+ostream& operator<<(ostream& stream,const subject& a)
+{
+	stream << "\t\tSubject Details\n" << "Name: " << a.name << "\n" << "Sub-code: " << a.code << "\n";
+
+	return stream;
+}
 
 class student_list{
 private:
@@ -194,6 +214,8 @@ public:
 			if(relate[subindx][i]) temp.insert(stdl[i]);
 		}
 
+		cout << subl[subindx] << "Students choose this subject: \n";
+
 		cout << temp;
 	}
 
@@ -210,11 +232,31 @@ public:
 			if(relate[stdindx][i]) temp.insert(subl[i]);
 		}
 
+		cout << stdl[stdindx] << "Opted for subjects: \n";
+
+
 		cout << temp;
 	}
-}
+};
 
 int main()
 {
+	int r;
+	char name[30] = "Unknown";
+	relation x;
+
+	for(int i = 0; i < 5; i++)
+		x.add_student(student(i+1, name));
+
+	for(int i = 0; i < 5; i++)
+		x.add_subject(subject(i+1, name));
+
+	for(int i = 1; i < 6; i ++)
+	{
+		x.opt(i, 1);
+	}
+
+	x.show_student(1);
+
 	return 0;
 }
