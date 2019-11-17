@@ -4,6 +4,7 @@
 #include<fstream>
 
 #define _INIT_SIZE_ 100
+#define dbg(x) cout << #x << " = " << x << endl;
 
 using namespace std;
 
@@ -32,7 +33,7 @@ ostream& operator>>(ostream& stream, const Date& a) {stream << "Date: " << a.d <
 
 
 class Book{
-private:
+protected:
     char name[50], author[50], publisher[50];
     int id, price;
     int num_copies;
@@ -40,16 +41,16 @@ private:
                     bool flag checks the availibility of corresponding copy
 
 public:
-    Book() : id(-1), price(-1), num_copies(0)
+    Book() : id(-1), price(-1)
     {
-        name[0] = author[0] = publisher[0] = '\0';
-        id = -1, price = -1;
         num_copies = 0;
+        name[0] = author[0] = publisher[0] = '\0';
         for(int i = 0; i < _INIT_SIZE_; i++) copies[i] = true;
     }
 
-    Book(char* nm, char* a, char* pub, int id_book, int book_price) : id(id_book), price(book_price), num_copies(0)
+    Book(char* nm, char* a, char* pub, int id_book, int book_price) : id(id_book), price(book_price)
     {
+        num_copies = 0;
         strcpy(name, nm);
         strcpy(author, a);
         strcpy(publisher, pub);
@@ -60,7 +61,9 @@ public:
 
     void add_copies(int additional)
     {
+        // dbg(num_copies);
         if(_INIT_SIZE_ - num_copies >= additional) num_copies += additional;
+        
         else cout << "No Space for additional copies!\n";
     }
 
@@ -82,25 +85,37 @@ public:
     }
 
     friend istream& operator>>(istream& stream, Book& a);
+    friend ostream& operator<<(ostream& stream, const Book& a);
     friend class BookListInterface;
 };
 
 istream& operator>>(istream& stream, Book& a)
 {
-    cout << "\n\t\tEnter book details:\n";
+    cout << "\n\tEnter book details:\n";
+    cout << "________________________________________\n";
     cout << "Enter Book name: "; stream >> a.name; cin.get();
     cout << "Enter Author: "; stream >> a.author; cin.get();
     cout << "Enter publisher: "; stream >> a.publisher; cin.get();
     cout << "Enter book id: "; stream >> a.id;
+    cout << "Number of copies: "; stream >> a.num_copies;
     cout << "Enter price: "; stream >> a.price;
     cout << "\n";
 
     return stream;
 }
 
+ostream& operator<<(ostream& stream, const Book& a){
+    cout << "\n\tBook Details\n";
+    cout << "________________________________________\n";
+    cout << "ID: " << a.id << "\tCopies: " << a.num_copies << endl;
+    cout << "Author: " << a.author << endl;
+    cout << "Name: " << a.name << endl;
+    cout << "Name: " << a.publisher << endl;
+}
+
 
 class member{
-private:
+protected:
     int id;
     char name[30], email[30], address[30];
     int transact_limit, issued;
@@ -124,7 +139,7 @@ public:
 
     bool issue()
     {
-        if(transact_limit <= issued) return false; 
+        if(issued >= transact_limit) return false; 
 
         else {issued++; return true;}
     }
@@ -138,6 +153,7 @@ public:
 
     friend class MemberListInterface;
     friend istream& operator>>(istream& stream, member& a);
+    friend ostream& operator<<(ostream& stream, const member& a);
 };
 
 istream& operator>>(istream& stream, member& a)
@@ -147,17 +163,36 @@ istream& operator>>(istream& stream, member& a)
     cout << "Enter email: "; stream >> a.email; cin.get();
     cout << "Enter address: "; stream >> a.address; cin.get();
     cout << "Member type: \n<1>Faculty\n<2>Student\nEnter type: "; int x; stream >> x;
-    if(x == 1) a.transact_limit = 10;
-    if(x == 2) a.transact_limit = 2;
+    if(x == 1) {
+        a.memtype = 'F';
+        a.transact_limit = 10;
+    }
+    if(x == 2) {
+        a.memtype = 'S';
+        a.transact_limit = 2;
+    }
+
     a.issued = 0;
 
     return stream;
 }
 
+ostream& operator<<(ostream& stream, const member& a){
+    cout << "\n\t\t\tMember Details!!\n";
+    cout << "_______________________________________________________________________\n";
+    if(a.memtype == 'f' || a.memtype == 'F')
+        cout << "Member Type: Faculty\t\t\t";
+    else
+        cout << "Member Type: Student\t\t\t";
 
+    cout << "Member ID: " << a.id << endl;
+    cout << "Name: " << a.name << "\t\t\t" << "E-mail: " << a.email << endl;
+    cout << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;    
+}
 
 class transaction
 {
+protected:
     int member_id, book_id, serial;
     bool returned;
 
@@ -171,28 +206,27 @@ public:
 
     friend istream& operator>>(istream& stream, transaction& a);
     friend class TransactionListInterface;
-    friend class library;
+    friend class Library;
 };
 
 istream& operator>>(istream& stream, transaction& a)
 {
     cout << "Transaction type: \n<1>Issue Request?\n<2>Return Request?";
-    cout << "Enter type: ";
-    int x; cin >> x;
+    cout << "\nEnter type: ";
+    int x; stream >> x;
 
     if(x == 1)
     {
-        cout << "Student id: "; stream >> a.member_id;
+        cout << "Member id: "; stream >> a.member_id;
         cout << "Book id: "; stream >> a.book_id;
         a.returned = false;
     }
 
-    else{
-        cout << "Student id: "; stream >> a.member_id;
+    else if(x == 2){
+        cout << "Member id: "; stream >> a.member_id;
         cout << "Book id: "; stream >> a.book_id;
         cout << "Serial Number: "; stream >> a.serial;
         a.returned = true;
-        a.returned = false;   
     }
 
     return stream;
@@ -200,7 +234,7 @@ istream& operator>>(istream& stream, transaction& a)
 
 
 class BookListInterface{
-private:
+protected:
     char FILE_NAME[50];
 public:
     BookListInterface(const char* name) {
@@ -238,11 +272,31 @@ public:
         ofstream appendStream(FILE_NAME, ios::app | ios::binary);
 
         Book a; cin >> a;
+        // dbg(a);
         appendStream.write((char *) &a, sizeof(Book));
         appendStream.close();
     }
 
-    int issue(int offset)
+    void add_copies(int book_id, int additional)
+    {
+        fstream stream(FILE_NAME, ios::in | ios::out | ios::binary);
+
+        int offset = find_book(book_id);
+
+        Book a;
+
+        stream.seekg(offset, ios::beg);
+        stream.read((char *)&a, sizeof(Book));
+
+        a.add_copies(additional);
+
+        stream.seekp(offset, ios::beg);
+        stream.write((char *)&a, sizeof(Book));
+
+        stream.close();
+    }
+
+    int issue_b(int offset)
     {
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
@@ -257,7 +311,7 @@ public:
         return serial;
     }
 
-    bool Return(int offset, int serial)
+    bool Return_b(int offset, int serial)
     {
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
         Book a;
@@ -273,7 +327,7 @@ public:
 };
 
 class MemberListInterface{
-private:
+protected:
     char FILE_NAME[50];
 
 public:
@@ -286,6 +340,7 @@ public:
     void add_member(){
         member a; cin >> a;
 
+        // dbg(a);
         ofstream addStream(FILE_NAME, ios::app | ios::binary);
         addStream.write((char *)&a, sizeof(member));
         addStream.close();
@@ -308,7 +363,7 @@ public:
         searchStream.close(); return -1;
     }
 
-    bool issue(int offset)
+    bool issue_m(int offset)
     {
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
@@ -323,7 +378,7 @@ public:
         return ans;
     }
 
-    bool Return(int offset)
+    bool Return_m(int offset)
     {
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
@@ -340,7 +395,7 @@ public:
 };
 
 class TransactionListInterface{
-private:
+protected:
     char FILE_NAME[50];
 public:
     TransactionListInterface(const char* name){
@@ -349,13 +404,13 @@ public:
         createStream.close();
     }
 
-    void add(transaction& a){
+    void add_transaction(transaction& a){
         ofstream addStream(FILE_NAME, ios::app | ios::binary);
         addStream.write((char *)&a, sizeof(transaction));
         addStream.close();
     }
 
-    int find(transaction& a){
+    int find_transaction(transaction& a){
         ifstream findStream(FILE_NAME, ios::in | ios::binary);
 
         int offset = -1;
@@ -373,7 +428,7 @@ public:
         return -1;
     }
 
-    bool Return(int offset)
+    bool Return_t(int offset)
     {
         bool ans = false;
         fstream findStream(FILE_NAME, ios::in | ios::out | ios::binary);
@@ -390,15 +445,100 @@ public:
 };
 
 
-class Library{
+
+class Library : public TransactionListInterface, public MemberListInterface, public BookListInterface
+{
+public:
+    Library(const char* BookFile, const char* MemberFile, const char* TransactionFile)
+        : TransactionListInterface(TransactionFile), MemberListInterface(MemberFile), BookListInterface(BookFile) {}
+    
+    void transact(){
+        transaction a;
+        cin >> a;
+
+        if(a.returned){
+            int transact_offset = find_transaction(a);
+            if(transact_offset == -1){
+                cout << "Please check transaction details!!\n";
+                return;
+            }
+
+            bool successful = Return_t(transact_offset);
+
+            if(!successful){
+                cout << "Already returned book!!\n";
+                return;
+            }
+
+            else{
+                int book_offset = find_book(a.book_id);
+                int serial = a.serial;
+                int member_offset = find_member(a.member_id);
+
+                if(book_offset == -1 || member_offset == -1)
+                {
+                    cout << "Incorrect details!!\n";
+                    return;
+                }
+
+                if(Return_b(book_offset, serial) && Return_m(member_offset)) {
+                    cout << "Book successfully returned!!\n";
+                    return;
+                }
+
+                else {
+                    cout << "Wrong details!!\n";
+                    return;
+                }
+            }
+        }
+
+        else{
+            int book_id = a.book_id;
+            int member_id = a.member_id;
+
+            int member_offset = find_member(member_id);
+            int book_offset = find_book(book_id);
+
+            if(member_offset == -1){
+                cout << "Please, check member details!!\n";
+                return;
+            }
+            if(book_offset == -1){
+                cout << "Please, check book details!!\n";
+                return;
+            }
+
+            int serial = issue_b(book_offset);
+
+            if(serial == -1){
+                cout << "No copy of this book is available!!\n";
+                return;
+            }
+
+            bool successful = issue_m(member_offset);
+
+            if(!successful){
+                Return_b(book_offset, serial);
+                cout << "Your transaction limit exeeded!!\n";
+                return;
+            }
+
+            else{
+                a.serial = serial;
+                add_transaction(a);
+                cout << "Transaction successful!!\n";
+                cout << "Book serial code is: " << serial << "\n";
+                return;
+            }
+        }
+    }
 
 };
 
 int main()
 {
-    BookListInterface a("books.bin");
-    MemberListInterface b("members.bin");
-    TransactionListInterface c("transactions.bin");
+    Library a("books.bin", "members.bin", "transactions.bin");
 
     return 0;
 }
