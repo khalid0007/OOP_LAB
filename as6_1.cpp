@@ -111,6 +111,8 @@ ostream& operator<<(ostream& stream, const Book& a){
     cout << "Author: " << a.author << endl;
     cout << "Name: " << a.name << endl;
     cout << "Publishers: " << a.publisher << endl;
+    
+    return stream;
 }
 
 
@@ -187,7 +189,9 @@ ostream& operator<<(ostream& stream, const member& a){
 
     cout << "Member ID: " << a.id << endl;
     cout << "Name: " << a.name << "\t\t\t" << "E-mail: " << a.email << endl;
-    cout << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;    
+    cout << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;
+    
+    return stream
 }
 
 class transaction
