@@ -105,12 +105,12 @@ istream& operator>>(istream& stream, Book& a)
 }
 
 ostream& operator<<(ostream& stream, const Book& a){
-    cout << "\n\tBook Details\n";
-    cout << "________________________________________\n";
-    cout << "ID: " << a.id << "\tCopies: " << a.num_copies << endl;
-    cout << "Author: " << a.author << endl;
-    cout << "Name: " << a.name << endl;
-    cout << "Publishers: " << a.publisher << endl;
+    stream << "\n\tBook Details\n";
+    stream << "________________________________________\n";
+    stream << "ID: " << a.id << "\tCopies: " << a.num_copies << endl;
+    stream << "Author: " << a.author << endl;
+    stream << "Name: " << a.name << endl;
+    stream << "Publishers: " << a.publisher << endl;
     
     return stream;
 }
@@ -180,16 +180,16 @@ istream& operator>>(istream& stream, member& a)
 }
 
 ostream& operator<<(ostream& stream, const member& a){
-    cout << "\n\t\t\tMember Details!!\n";
-    cout << "_______________________________________________________________________\n";
+    stream << "\n\t\t\tMember Details!!\n";
+    stream << "_______________________________________________________________________\n";
     if(a.memtype == 'f' || a.memtype == 'F')
-        cout << "Member Type: Faculty\t\t\t";
+        stream << "Member Type: Faculty\t\t\t";
     else
-        cout << "Member Type: Student\t\t\t";
+        stream << "Member Type: Student\t\t\t";
 
-    cout << "Member ID: " << a.id << endl;
-    cout << "Name: " << a.name << "\t\t\t" << "E-mail: " << a.email << endl;
-    cout << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;
+    stream << "Member ID: " << a.id << endl;
+    stream << "Name: " << a.name << "\t\t\t" << "E-mail: " << a.email << endl;
+    stream << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;
     
     return stream
 }
