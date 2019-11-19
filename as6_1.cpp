@@ -29,7 +29,7 @@ public:
 
 istream& operator>>(istream& stream, Date& a) {cout << "Enter date (dd mm yyyy): "; stream >> a.d >> a.m >> a.y; return stream;}
 
-ostream& operator<<(ostream& stream, const Date& a) {stream << "Date: " << a.d << "/" << a.m << "/" << a.y << endl; return stream;}
+ostream& operator>>(ostream& stream, const Date& a) {stream << "Date: " << a.d << "/" << a.m << "/" << a.y << endl; return stream;}
 
 
 class Book{
@@ -110,7 +110,7 @@ ostream& operator<<(ostream& stream, const Book& a){
     cout << "ID: " << a.id << "\tCopies: " << a.num_copies << endl;
     cout << "Author: " << a.author << endl;
     cout << "Name: " << a.name << endl;
-    cout << "Name: " << a.publisher << endl;
+    cout << "Publishers: " << a.publisher << endl;
 }
 
 
@@ -284,12 +284,12 @@ public:
 
         Book a;
 
-        stream.seekg(offset, ios::beg);
+        stream.seekg(offset*sizeof(Book), ios::beg);
         stream.read((char *)&a, sizeof(Book));
 
         a.add_copies(additional);
 
-        stream.seekp(offset, ios::beg);
+        stream.seekp(offset*sizeof(Book), ios::beg);
         stream.write((char *)&a, sizeof(Book));
 
         stream.close();
@@ -300,11 +300,11 @@ public:
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
         Book a;
-        modifyStream.seekg(offset, ios::beg);
+        modifyStream.seekg(offset*sizeof(Book), ios::beg);
         modifyStream.read((char *)&a, sizeof(Book));
         int serial = a.available_copy();
 
-        modifyStream.seekp(offset, ios::beg);
+        modifyStream.seekp(offset*sizeof(Book), ios::beg);
         modifyStream.write((char *) &a, sizeof(Book));
         modifyStream.close();
         return serial;
@@ -314,11 +314,11 @@ public:
     {
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
         Book a;
-        modifyStream.seekg(offset, ios::beg);
+        modifyStream.seekg(offset*sizeof(Book), ios::beg);
         modifyStream.read((char *)&a, sizeof(Book));
 
         bool done = a.Return(serial);
-        modifyStream.seekp(offset, ios::beg);
+        modifyStream.seekp(offset*sizeof(Book), ios::beg);
         modifyStream.write((char *) &a, sizeof(Book));
         modifyStream.close();
         return done;
@@ -381,11 +381,11 @@ public:
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
         member a;
-        modifyStream.seekg(offset, ios::beg);
+        modifyStream.seekg(offset*sizeof(member), ios::beg);
         modifyStream.read((char *)&a, sizeof(member));
 
         int ans = a.issue();
-        modifyStream.seekp(offset, ios::beg);
+        modifyStream.seekp(offset*sizeof(member), ios::beg);
         modifyStream.write((char *)&a, sizeof(member));
         modifyStream.close();
         return ans;
@@ -396,11 +396,11 @@ public:
         fstream modifyStream(FILE_NAME, ios::in | ios::out | ios::binary);
 
         member a;
-        modifyStream.seekg(offset, ios::beg);
+        modifyStream.seekg(offset*sizeof(member), ios::beg);
         modifyStream.read((char *)&a, sizeof(member));
 
         int ans = a.Return();
-        modifyStream.seekp(offset, ios::beg);
+        modifyStream.seekp(offset*sizeof(member), ios::beg);
         modifyStream.write((char *)&a, sizeof(member));
         modifyStream.close();
         return ans;
@@ -456,10 +456,10 @@ public:
         bool ans = false;
         fstream findStream(FILE_NAME, ios::in | ios::out | ios::binary);
         transaction a;
-        findStream.seekg(offset, ios::beg);
+        findStream.seekg(offset*sizeof(transaction), ios::beg);
         findStream.read((char *)&a, sizeof(transaction));
         if(!a.returned) {a.returned = true; ans = true;}
-        findStream.seekp(offset, ios::beg);
+        findStream.seekp(offset*sizeof(transaction), ios::beg);
         findStream.write((char *)&a, sizeof(transaction));
 
         findStream.close();
@@ -563,9 +563,9 @@ int main()
 {
     Library a("books.bin", "members.bin", "transactions.bin");
 
-//     // for(int i = 0; i < 1; i++) a.add_book();
+    // for(int i = 0; i < 2; i++) a.add_book();
 
-//     a.read_file_b();
+    a.read_file_b();
 
     return 0;
 }
