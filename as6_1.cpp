@@ -406,7 +406,15 @@ public:
         return ans;
     }
 
-    // void read_file_
+    void read_file_m(){
+        ifstream stream(FILE_NAME, ios::in | ios::binary);
+        member b;
+
+        cout << "Reading member files: " << endl;
+        while(stream.read((char *)&b, sizeof(member))){
+            cout << b << endl;
+        }
+    }
 };
 
 class TransactionListInterface{
