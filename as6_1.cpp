@@ -2,9 +2,9 @@
 #include<algorithm>
 #include<string.h>
 #include<fstream>
+#include<ctime>
 
 #define _INIT_SIZE_ 100
-#define dbg(x) cout << #x << " = " << x << endl;
 
 using namespace std;
 
@@ -15,22 +15,26 @@ class transaction;
 class Library;
 
 class Date{
-public:
+private:
     int d, m, y;
+public:
+    Date() {
+        time_t tt;
+        struct tm * ti; 
+        time (&tt); 
+        ti = localtime(&tt);
 
-    Date(int dd, int mm, int yy)
-    {
-        d = dd; m = mm; y = yy; 
+        d = ti->tm_mday;
+        m = ti->tm_mon;
+        y = ti->tm_year;
     }
 
-    friend istream& operator>>(istream& stream, Date& a);
-    friend ostream& operator>>(ostream& stream, const Date& a);
+    Date(int d, int m, int y) : d(d), m(m), y(y) {}
+
+    friend ostream& operator<<(ostream& stream, const Date& a);
 };
 
-istream& operator>>(istream& stream, Date& a) {cout << "Enter date (dd mm yyyy): "; stream >> a.d >> a.m >> a.y; return stream;}
-
-ostream& operator>>(ostream& stream, const Date& a) {stream << "Date: " << a.d << "/" << a.m << "/" << a.y << endl; return stream;}
-
+ostream& operator<<(ostream& stream, const Date& a) {stream << "Date: " << a.d << "/" << a.m << "/" << a.y << endl; return stream;}
 
 class Book{
 protected:
@@ -199,6 +203,7 @@ class transaction
 protected:
     int member_id, book_id, serial;
     bool returned;
+    Date DateOfTransaction;
 
 public:
     transaction() : member_id(-1), book_id(-1), serial(-1), returned(false) {} 
@@ -455,18 +460,25 @@ public:
         return -1;
     }
 
-    bool Return_t(int offset)
+    bool Return_t(int offset, transaction& b)
     {
         bool ans = false;
         fstream findStream(FILE_NAME, ios::in | ios::out | ios::binary);
         transaction a;
         findStream.seekg(offset*sizeof(transaction), ios::beg);
         findStream.read((char *)&a, sizeof(transaction));
-        if(!a.returned) {a.returned = true; ans = true;}
-        findStream.seekp(offset*sizeof(transaction), ios::beg);
-        findStream.write((char *)&a, sizeof(transaction));
+
+        // If not already returned
+        if(!a.returned) ans = true;
+
+        if(ans)
+        {
+            findStream.seekp(offset*sizeof(transaction), ios::beg);
+            findStream.write((char *)&b, sizeof(transaction));
+        }
 
         findStream.close();
+
         return ans;
     }
 };
@@ -490,7 +502,7 @@ public:
                 return;
             }
 
-            bool successful = Return_t(transact_offset);
+            bool successful = Return_t(transact_offset, a);
 
             if(!successful){
                 cout << "Already returned book!!\n";
@@ -567,7 +579,11 @@ int main()
 {
     Library a("books.bin", "members.bin", "transactions.bin");
 
-    // for(int i = 0; i < 2; i++) a.add_book();
+    for(int i = 0; i < 3; i++) a.add_book();
+    for(int i = 0; i < 3; i++) a.add_member();
+
+
+    for(int i = 0; i < 3; i++) a.transact();
 
     a.read_file_b();
 
