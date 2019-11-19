@@ -253,11 +253,10 @@ public:
         }
         int offset = -1;
 
-        while(!searchStream.eof())
+        Book a;
+        while(searchStream.read((char *) &a, sizeof(Book)))
         {
             offset++;
-            Book a;
-            searchStream.read((char *) &a, sizeof(Book));
 
             if(a.id == book_id) {searchStream.close(); return offset;}
         }
@@ -324,6 +323,20 @@ public:
         modifyStream.close();
         return done;
     }
+
+
+    void read_file_b(){
+        ifstream stream(FILE_NAME, ios::in | ios::binary);
+
+        Book a;
+
+        cout << "Reading book list: " << endl;
+        while(stream.read((char *)&a, sizeof(Book))){
+            cout << a << endl;
+        }
+
+        stream.close();
+    }
 };
 
 class MemberListInterface{
@@ -350,10 +363,10 @@ public:
         ifstream searchStream(FILE_NAME, ios::in | ios::binary);
 
         member a; int offset = -1;
-        while(!searchStream.eof())
+        while(searchStream.read((char *)&a, sizeof(member)))
         {
             offset++;
-            searchStream.read((char *)&a, sizeof(member));
+
             if(a.id == id) {
                 searchStream.close();
                 return offset;
@@ -392,6 +405,8 @@ public:
         modifyStream.close();
         return ans;
     }
+
+    // void read_file_
 };
 
 class TransactionListInterface{
@@ -414,16 +429,16 @@ public:
         ifstream findStream(FILE_NAME, ios::in | ios::binary);
 
         int offset = -1;
-        while(!findStream.eof()){
+        transaction b;
+        while(findStream.read((char *)&b, sizeof(transaction))){
             offset++;
-            transaction b;
-            findStream.read((char *)&b, sizeof(transaction));
-
+            
             if(a == b) {
                 findStream.close();
                 return offset;
             }
         }
+        
         findStream.close();
         return -1;
     }
@@ -539,6 +554,10 @@ public:
 int main()
 {
     Library a("books.bin", "members.bin", "transactions.bin");
+
+//     // for(int i = 0; i < 1; i++) a.add_book();
+
+//     a.read_file_b();
 
     return 0;
 }
