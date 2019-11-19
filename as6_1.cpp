@@ -191,7 +191,7 @@ ostream& operator<<(ostream& stream, const member& a){
     stream << "Name: " << a.name << "\t\t\t" << "E-mail: " << a.email << endl;
     stream << "Issued: " << a.issued << "\t\t\t\t" << "Transaction Limit: " << a.transact_limit << endl;
     
-    return stream
+    return stream;
 }
 
 class transaction
